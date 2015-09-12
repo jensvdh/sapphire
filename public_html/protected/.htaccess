@@ -1,0 +1,4 @@
+AuthUserFile "/Users/jrob/workspace/server/.htpassword"
+AuthType Basic
+AuthName "I Challenge You"
+Require valid-user
