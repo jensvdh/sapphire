@@ -31,7 +31,7 @@ Require #{user_name}
   let(:htaccess_user) { WebServer::Htaccess.new(user_content) }
 
   let(:htpasswd_content) do
-    all_users.map do |user_name| 
+    all_users.map do |user_name|
       "#{user_name}:{SHA}#{Digest::SHA1.base64digest('password')}"
     end.join("\n")
   end
