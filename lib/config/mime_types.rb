@@ -11,7 +11,6 @@ module WebServer
 		value, ext = line.split(" ",2)
 			if (ext != nil)
 			key = ext.split(" ")
-			puts "#{key}"
 			end
 		key.each do |c|
 		@mimetype[c] = value
