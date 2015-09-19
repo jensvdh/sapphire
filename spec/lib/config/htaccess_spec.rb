@@ -1,7 +1,6 @@
 require 'spec_helper'
 require 'test_construct/rspec_integration'
 require 'base64'
-
 describe WebServer::Htaccess do
   let(:htpwd_file_name) { '.htpwd_file_name' }
   let(:auth_name) { "This is the auth_name" }
@@ -37,10 +36,9 @@ Require #{user_name}
   end
 
   def stub_htpwd_file
-    within_construct do |construct|
+    within_construct(base_dir: Dir.pwd) do |construct|
       construct.directory '.' do |directory|
         directory.file htpwd_file_name, htpasswd_content
-
         yield
       end
     end
