@@ -7,25 +7,14 @@ module WebServer
     # the client has connected
     def initialize(socket)
       # Perform any setup, then parse the request
-      @http_method = "GET"
-      @uri = "/"
-      @version = "HTTP/1.1"
-      @headers = Hash.new
-      @params= Hash.new
-      @headers = {
-      'HOST' => "localhost",
-      'CONTENT_LENGTH' => "40"
-      }
-      @body = "This is the body.\nWith multiple lines..."
-      @params ={'param1' => 'one'}
     end
 
     # I've added this as a convenience method, see TODO (This is called from the logger
     # to obtain information during server logging)
     def user_id
-      # TODO: This is the userid of the person requesting the document as determined by 
-      # HTTP authentication. The same value is typically provided to CGI scripts in the 
-      # REMOTE_USER environment variable. If the status code for the request (see below) 
+      # TODO: This is the userid of the person requesting the document as determined by
+      # HTTP authentication. The same value is typically provided to CGI scripts in the
+      # REMOTE_USER environment variable. If the status code for the request (see below)
       # is 401, then this value should not be trusted because the user is not yet authenticated.
       '-'
     end
