@@ -7,6 +7,17 @@ module WebServer
     # the client has connected
     def initialize(socket)
       # Perform any setup, then parse the request
+      @http_method = "GET"
+      @uri = "/"
+      @version = "HTTP/1.1"
+      @headers = Hash.new
+      @params= Hash.new
+      @headers = {
+      'HOST' => "localhost",
+      'CONTENT_LENGTH' => "40"
+      }
+      @body = "This is the body.\nWith multiple lines..."
+      @params ={'param1' => 'one'}
     end
 
     # I've added this as a convenience method, see TODO (This is called from the logger
