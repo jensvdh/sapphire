@@ -8,28 +8,56 @@ module WebServer
     def initialize(socket)
       @headers = Hash.new
       @params = Hash.new
-      content = socket.read
-      content = content.split("\n", 5)
-      content.delete_if{|m| m =~ /^#/ || m.length == 0}
-      @body = content[3].strip!
-      
-      content.each do |line|
-        key, value = line.split(" ", 2)
-        case key
-          when "GET"
-            @http_method = key
-            value, @version = value.split(" ")
-            @uri, value = value.split(/\?/)
-            key, value= value.split("=", 2)
-            @params[key] = value
-          when "Host:"
-            @headers["HOST"] = value
-          when "Content-Length:"
-            @headers["CONTENT_LENGTH"] = value
-        end
-
+      @body = ""
+      request_string = socket.read
+      lines = request_string.split("\n")
+      parse_initial_line(lines[0])
+      line_index = 1
+      line = lines[line_index]
+      #headers
+      while !line.strip.empty?
+        parse_header_line(line)
+        line_index += 1
+        line = lines[line_index]
       end
-    # Perform any setup, then parse the request
+      line_index += 1
+      line = lines[line_index]
+      while line != nil && !line.strip.empty?
+        parse_body_line(line)
+        line_index += 1
+        line = lines[line_index]
+      end
+      @body.strip!
+    end
+
+    def parse_body_line(line)
+      @body = @body + line + "\n"
+    end
+
+    def parse_header_line(line)
+      key, value = line.split(":")
+      key.strip!
+      value.strip!
+      key.upcase!
+      key.gsub!('-','_')
+      @headers[key] = value
+    end
+
+    def parse_initial_line(line)
+      @http_method, @uri, @version = line.split(' ')
+      if(@http_method == "GET")
+        @uri, get_params_string = @uri.split('?')
+        @params = parse_get_params(get_params_string)
+      end
+    end
+
+    def parse_get_params(get_params_string)
+      param_strings = get_params_string.split("&")
+      param_strings.each do |param_string|
+        key, value = param_string.split('=')
+        @params[key] = value
+      end
+      return params
     end
 
     # I've added this as a convenience method, see TODO (This is called from the logger
@@ -40,28 +68,6 @@ module WebServer
       # REMOTE_USER environment variable. If the status code for the request (see below)
       # is 401, then this value should not be trusted because the user is not yet authenticated.
       '-'
-    end
-
-    # Parse the request from the socket - Note that this method takes no
-    # parameters
-    def parse
-    end
-
-    # The following lines provide a suggestion for implementation - feel free
-    # to erase and create your own...
-    def next_line
-    end
-
-    def parse_request_line
-    end
-
-    def parse_header(header_line)
-    end
-
-    def parse_body(body_line)
-    end
-
-    def parse_params
     end
   end
 end
