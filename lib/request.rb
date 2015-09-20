@@ -6,7 +6,30 @@ module WebServer
     # Request creation receives a reference to the socket over which
     # the client has connected
     def initialize(socket)
-      # Perform any setup, then parse the request
+      @headers = Hash.new
+      @params = Hash.new
+      content = socket.read
+      content = content.split("\n", 5)
+      content.delete_if{|m| m =~ /^#/ || m.length == 0}
+      @body = content[3].strip!
+      
+      content.each do |line|
+        key, value = line.split(" ", 2)
+        case key
+          when "GET"
+            @http_method = key
+            value, @version = value.split(" ")
+            @uri, value = value.split(/\?/)
+            key, value= value.split("=", 2)
+            @params[key] = value
+          when "Host:"
+            @headers["HOST"] = value
+          when "Content-Length:"
+            @headers["CONTENT_LENGTH"] = value
+        end
+
+      end
+    # Perform any setup, then parse the request
     end
 
     # I've added this as a convenience method, see TODO (This is called from the logger
