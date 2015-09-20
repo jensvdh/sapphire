@@ -35,8 +35,7 @@ module WebServer
 
     def initialize(content)
       content.each_line do |line|
-        key = line.split(' ', 2)[0]
-        value = line.split(' ', 2)[1]
+        key, value = line.split(' ', 2)
         value.strip!
         value.gsub!(/^\"|\"?$/, '')
         #puts "Key Value pair"+key+":"+value

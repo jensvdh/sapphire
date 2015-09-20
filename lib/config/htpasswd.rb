@@ -9,7 +9,6 @@ module WebServer
     def authorized_users_array
       authorized_users_array = Array.new()
       @authorized_users.each do |key, value|
-        puts key, value
         authorized_users_array.push(key)
       end
       return authorized_users_array
