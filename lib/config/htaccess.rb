@@ -11,7 +11,7 @@ module WebServer
 
     def authorized?(encrypted_string)
       #create a new htpasswd instance
-      file = File.open(Dir.pwd + "/" + @auth_user_file, "rb")
+      file = File.open(@auth_user_file, "rb")
       contents = file.read
       htpasswd = Htpasswd.new(contents)
       return htpasswd.is_authorized?(encrypted_string)
@@ -19,7 +19,7 @@ module WebServer
 
     def users
       #create a new htpasswd instance
-      file = File.open(Dir.pwd + "/" + @auth_user_file, "rb")
+      file = File.open(@auth_user_file, "rb")
       contents = file.read
       htpasswd = Htpasswd.new(contents)
       return htpasswd.authorized_users_array

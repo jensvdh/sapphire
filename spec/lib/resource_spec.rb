@@ -22,10 +22,9 @@ describe WebServer::Resource do
   end
 
   def protect_directory(directory_path)
-    within_construct do |construct|
+    within_construct(base_dir: Dir.pwd) do |construct|
       construct.directory directory_path do |directory|
         directory.file access_file, ''
-
         yield
       end
     end
@@ -33,7 +32,7 @@ describe WebServer::Resource do
 
   describe '#resolve' do
     context 'for an unaliased path' do
-      let(:conf) do 
+      let(:conf) do
         object = conf_double
         object.stub(:aliases).and_return []
         object.stub(:script_aliases).and_return []
@@ -64,10 +63,12 @@ describe WebServer::Resource do
     end
 
     context 'for an aliased path' do
-      let(:conf) do 
+      let(:conf) do
         object = conf_double
         object.stub(:aliases).and_return ['/aa/aa']
         object.stub(:alias_path).and_return('/bb/bb/bb')
+        object.stub(:script_alias_path).and_return []
+        object.stub(:script_aliases).and_return []
         object
       end
       let(:request) { request_double(uri: '/aa/aa/resource') }
@@ -112,7 +113,7 @@ describe WebServer::Resource do
         end
       end
     end
- 
+
     context 'when unprotected directory' do
       let(:request) { request_double(uri: '/a/resource') }
 
