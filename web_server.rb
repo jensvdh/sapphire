@@ -1,94 +1,42 @@
 require 'socket'
-
-# --- func def for application
-
-def application(name, &block)
-  $app = Application.new
-  $app.name = name
-  $app.instance_eval(&block)
+#require all ruby files
+Dir.glob('lib/**/*.rb').each do |file|
+  require file
 end
 
+module WebServer
+  class Server
+    DEFAULT_PORT = 2468
 
-# --- class definition for Application
+    #constructor
+    def initialize(options={})
+      config_file = File.open("config/jens.conf", "rb")
+      contents = config_file.read
+      config_file.close
+      @conf = HttpdConf.new(contents)
+      if @conf.port.nil?
+        @conf.port = @DEFAULT_PORT
+      end
+      # Set up WebServer's configuration files and logger here
+      # Do any preparation necessary to allow threading multiple requests
+    end
 
-class Application
-  attr_accessor :name
-  def initialize
-    @responders = {}
-  end
-
-  def open(client, path)
-   responder = @responders[path]
-   if responder
-    responder.handle client
-   else
-    puts '>>> !no responder for ' + path
-    @responders['/404'].handle client
-   end
- end
-
- def respond(path, &block)
-    @responders[path] = Responder.new(&block)
- end
-end
-
-
-# --- class definition for Responder
-
-class Responder
-  def initialize(&block)
-   @block = block
-  end
-
-  def handle(client)
-   @client = client
-   instance_eval(&@block)
-  end
-
- def say(words)
-   @client.write(words)
-   #puts words
+    def start
+      puts "Starting webserver on port #{@conf.port}"
+      "waiting for connections.."
+      server = TCPServer.open(@conf.port)
+      loop do
+        Thread.fork(server.accept) do |client|
+          #all code here lives in another threads
+          client.puts("Hello, I'm Ruby TCP server", "I'm disconnecting, bye :*")
+          client.close
+        end
+      end
+      # Begin your 'infinite' loop, reading from the TCPServer, and
+      # processing the requests as connections are made
+    end
+    private
   end
 end
 
-
-# --- DSL
-
-application 'Test' do
-  respond '/' do
-   say 'you can try /work, /about or /ruby ;^D'
-  end
-
-  respond '/work' do
-   say 'the work should be fun. like a game.'
-  end
-
- respond '/about' do
-   say 'a simple web server written in ruby-lang.'
- end
-
- respond '/ruby' do
-   say 'Ruby is a dynamic, reflective, general purpose object-oriented programming language that combines syntax inspired by Perl with Smalltalk-like features. (from wikipedia)'
- end
-
- respond '/404' do
-   say 'page not found'
- end
-end
-
-
-# --- Web Server: http://localhost:8080
-
-server = TCPServer.new('localhost', 8080)
-while client = server.accept
-  peername = client.peeraddr[1,2].reverse.join ':'
-  http_req = client.recv(1024)
-  matches = /GET (.*) HTTP\/.*/i.match(http_req)
-  if matches != nil && matches.length >= 2
-   puts '>>> handle request ' + matches[1] + ' from ' + peername
-   $app.open client, matches[1]
-  else
-   puts '>>> bad request from ' + peername
-  end
-  client.close
-end
+WebServer::Server.new.start

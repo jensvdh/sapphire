@@ -1,6 +1,7 @@
 require 'spec_helper'
 require 'test_construct/rspec_integration'
 require 'base64'
+require 'Digest'
 describe WebServer::Htaccess do
   let(:htpwd_file_name) { '.htpwd_file_name' }
   let(:auth_name) { "This is the auth_name" }

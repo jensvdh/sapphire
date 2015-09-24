@@ -5,25 +5,21 @@ module WebServer
       @request = request
       @conf = httpd_conf
       @mimes = mimes
-      @script_aliased = false;
+      @script_aliased = false
     end
 
     def protected?
       uri = @request.uri
       document_root = @conf.document_root
-      directory = ""
-      filename = ""
-      if (File.extname(uri) == "")
-        filename = @conf.directory_index
+      if File.extname(uri) == ""
         directory = uri
       else
-        filename = uri.split("/").last
         directory = (uri.split("/").first uri.split("/").size - 1).join("/")
       end
       if directory.start_with? "/"
-        return File.exist?(directory + "/" + @conf.access_file_name)
+        File.exist?(directory + "/" + @conf.access_file_name)
       else
-        return File.exist?(document_root + directory + "/" + @conf.access_file_name)
+        File.exist?(document_root + directory + "/" + @conf.access_file_name)
       end
     end
 
