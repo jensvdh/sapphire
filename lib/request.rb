@@ -9,29 +9,33 @@ module WebServer
       @headers = Hash.new
       @params = Hash.new
       @body = ""
-      request_string = socket.read
-      lines = request_string.split("\n")
-      parse_initial_line(lines[0])
-      line_index = 1
-      line = lines[line_index]
-      #headers
-      while !line.strip.empty?
+      initial_line = socket.readline
+      parse_initial_line(initial_line)
+      line = socket.readline
+
+      while (!line.strip.empty?) do
+        puts line
         parse_header_line(line)
-        line_index += 1
-        line = lines[line_index]
+        line = socket.readline
       end
-      line_index += 1
-      line = lines[line_index]
-      while line != nil && !line.strip.empty?
+
+      #check if we have a content length header
+      if !@headers["CONTENT_LENGTH"].nil?
+        content_length = 0
+        line = socket.readline
+        content_length = content_length + line.length
+        while (content_length < @headers["CONTENT_LENGTH"].to_i) do
+          parse_body_line(line)
+          line = socket.readline
+          content_length = content_length + line.length
+        end
         parse_body_line(line)
-        line_index += 1
-        line = lines[line_index]
+        @body.strip!
       end
-      @body.strip!
     end
 
     def parse_body_line(line)
-      @body = @body + line + "\n"
+      @body = @body + line
     end
 
     def parse_header_line(line)
@@ -42,12 +46,16 @@ module WebServer
       key.gsub!('-','_')
       @headers[key] = value
     end
+    def get_content_from_buffer(socket)
+    end
 
     def parse_initial_line(line)
       @http_method, @uri, @version = line.split(' ')
       if(@http_method == "GET")
         @uri, get_params_string = @uri.split('?')
-        @params = parse_get_params(get_params_string)
+        if !get_params_string.nil?
+          @params = parse_get_params(get_params_string)
+        end
       end
     end
 

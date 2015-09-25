@@ -7,11 +7,15 @@ require_relative 'response'
 module WebServer
   class Worker
     # Takes a reference to the client socket and the logger object
-    def initialize(client_socket, server=nil)
+    def initialize(client_socket, server)
+      @socket = client_socket
+      @server = server
     end
 
     # Processes the request
     def process_request
+      request = Request.new(@socket)
     end
+
   end
 end

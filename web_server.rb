@@ -27,8 +27,9 @@ module WebServer
       server = TCPServer.open(@conf.port)
       loop do
         Thread.fork(server.accept) do |client|
-          #all code here lives in another threads
-          client.puts("Hello, I'm Ruby TCP server", "I'm disconnecting, bye :*")
+          worker = Worker.new(client, self)
+          worker.process_request
+          puts "request handled"
           client.close
         end
       end
