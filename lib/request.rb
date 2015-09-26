@@ -1,8 +1,7 @@
 # The Request class encapsulates the parsing of an HTTP Request
 module WebServer
   class Request
-    attr_accessor :http_method, :uri, :version, :headers, :body, :params
-
+    attr_accessor :headers, :params, :uri, :body, :version, :http_method
     # Request creation receives a reference to the socket over which
     # the client has connected
     def initialize(socket)
@@ -31,6 +30,7 @@ module WebServer
         end
         parse_body_line(line)
         @body.strip!
+        puts @headers
       end
     end
 

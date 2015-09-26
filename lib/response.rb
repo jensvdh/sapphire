@@ -15,20 +15,27 @@ module WebServer
       500 => 'Internal Server Error'
     }.freeze
 
-    def self.default_headers
-      {
-        'Date' => Time.now.strftime('%a, %e %b %Y %H:%M:%S %Z'),
-        'Server' => 'John Roberts CSC 667'
-      }
-    end
+    DEFAULT_HEADERS = {
+      'Date' => Time.now.strftime('%a, %e %b %Y %H:%M:%S %Z'),
+      'Server' => 'Jens & Abhilash CSC 667 server.'
+    }
 
     module Factory
       def self.create(resource)
-        Response::Base.new(resource)
+        #check if the file exists
+        path = resource.resolve
+        if !File.exists?(path)
+          Response::NotFound.new(resource)
+        else
+          if(!resource.protected?)
+            Response::Success.new(resource)
+          else
+            Response::Unauthorized.new(resource)
+          end
+        end
       end
-
       def self.error(resource, error_object)
-        Response::ServerError.new(resource, exception: error_object)
+        #Response::ServerError.new(resource, exception: error_object)
       end
     end
   end

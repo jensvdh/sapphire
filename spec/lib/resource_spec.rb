@@ -105,7 +105,7 @@ describe WebServer::Resource do
 
     context 'when resource is in protected directory' do
       let(:protected_directory) { `pwd` }
-      let(:request) { request_double(uri: "#{protected_directory}/resource.html") }
+      let(:request) { request_double(uri: "#{protected_directory.trim!}/resource.html") }
 
       it 'returns true' do
         protect_directory protected_directory do

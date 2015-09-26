@@ -14,7 +14,11 @@ module WebServer
 
     # Processes the request
     def process_request
-      request = Request.new(@socket)
+      puts "New Request received"
+      req = Request.new(@socket)
+      resource = Resource.new(req, @server.conf, @server.mimes)
+      response = Response::Factory::create(resource)
+      @socket.write(response.to_s)
     end
 
   end

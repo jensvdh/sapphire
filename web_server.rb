@@ -6,6 +6,7 @@ end
 
 module WebServer
   class Server
+    attr_accessor :conf, :mimes
     DEFAULT_PORT = 2468
 
     #constructor
@@ -14,6 +15,10 @@ module WebServer
       contents = config_file.read
       config_file.close
       @conf = HttpdConf.new(contents)
+      mime_types_file = File.open("config/mime.types", "rb")
+      mime_content = mime_types_file.read
+      @mimes = MimeTypes.new(mime_content)
+      mime_types_file.close
       if @conf.port.nil?
         @conf.port = @DEFAULT_PORT
       end

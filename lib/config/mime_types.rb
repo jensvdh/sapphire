@@ -8,12 +8,14 @@ module WebServer
       mimecontent = mime_file_content.split("\n")
       mimecontent.delete_if{|m| m.length == 0 || m =~ /^#/}
       mimecontent.each do |line|
-        value, ext = line.split(" ",2)
+        value, ext = line.split(' ',2)
         if (ext != nil)
-          key = ext.split(" ")
+          key = ext.split(' ')
         end
-        key.each do |c|
-          @mimetype[c] = value
+        if (!key.nil?)
+          key.each do |c|
+            @mimetype[c] = value
+          end
         end
       end
     end
