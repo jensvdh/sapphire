@@ -9,6 +9,16 @@ module WebServer
       return @auth_type
     end
 
+    def authenticated?(encrypted_string)
+      if authorized?(encrypted_string)
+        file = File.open(@auth_user_file, "rb")
+        contents = file.read
+        htpasswd = Htpasswd.new(contents)
+        return htpasswd.is_authenticated?(encrypted_string)
+      end
+      return false
+    end
+
     def authorized?(encrypted_string)
       #create a new htpasswd instance
       file = File.open(@auth_user_file, "rb")

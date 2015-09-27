@@ -25,15 +25,35 @@ module WebServer
         #check if the file exists
         path = resource.resolve
         if !File.exists?(path)
-          Response::NotFound.new(resource)
+          return Response::NotFound.new(resource)
         else
           if(!resource.protected?)
-            Response::Success.new(resource)
+            return Response::Success.new(resource)
           else
-            Response::Unauthorized.new(resource)
+            htaccess_path = File.dirname(path) + '/' + resource.conf.access_file_name
+            htaccess_file = File.open(htaccess_path, "rb")
+            file_content = htaccess_file.read
+            htaccess_file.close
+            access = Htaccess.new(file_content)
+            if(access.require_user == 'valid-user')
+              if resource.request.headers['AUTHORIZATION'].nil?
+                return Response::Unauthorized.new(resource, {:realm => access.auth_name})
+              else
+                #we will check the password here
+                encrypted_string = resource.request.headers['AUTHORIZATION'].split(" ").last
+                if(access.authenticated?(encrypted_string))
+                  return Response::Success.new(resource)
+                else
+                  return Response::Forbidden.new(resource)
+                end
+              end
+            else
+              return Response::Success.new(resource)
+            end
           end
         end
       end
+
       def self.error(resource, error_object)
         #Response::ServerError.new(resource, exception: error_object)
       end

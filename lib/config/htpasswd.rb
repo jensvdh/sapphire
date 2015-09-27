@@ -1,4 +1,5 @@
 require "base64"
+require "digest/sha1"
 module WebServer
   class Htpasswd
 
@@ -14,6 +15,14 @@ module WebServer
       return authorized_users_array
     end
 
+    def is_authenticated?(encrypted_string)
+      decrypted_string = Base64.decode64(encrypted_string)
+      username = decrypted_string.split(':')[0]
+      received_password = decrypted_string.split(':')[1]
+      encrypted_password = authorized_users[username]
+      encrypted_password = encrypted_password.gsub(/{SHA}/, '')
+      return encrypted_password == Digest::SHA1.base64digest(received_password)
+    end
 
     def is_authorized?(encrypted_string)
       decrypted_string = Base64.decode64(encrypted_string)
