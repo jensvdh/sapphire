@@ -60,7 +60,6 @@ module WebServer
       #TODO clean this up
       directory.chomp!('/')
       document_root.chomp!('/')
-      puts document_root, directory, filename
       if directory == ""
         return document_root + '/' +filename
       else
