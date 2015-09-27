@@ -1,10 +1,11 @@
 require 'spec_helper'
 require 'test_construct/rspec_integration'
+require 'fileutils'
 
 describe WebServer::Resource do
   let(:mimes) { double(WebServer::MimeTypes) }
   let(:access_file) { '.test_access_file' }
-  let(:test_doc_root) { '/doc_root' }
+  let(:test_doc_root) { Dir.pwd + '/doc_root' }
   let(:access_file_path) { "#{test_doc_root}/protected/#{access_file}" }
 
   def conf_double(options={})
@@ -19,15 +20,6 @@ describe WebServer::Resource do
       http_method: options.fetch(:method, 'GET'),
       uri: options.fetch(:uri, '/')
     })
-  end
-
-  def protect_directory(directory_path)
-    within_construct(base_dir: Dir.pwd) do |construct|
-      construct.directory directory_path do |directory|
-        directory.file access_file, ''
-        yield
-      end
-    end
   end
 
   describe '#resolve' do
@@ -104,13 +96,18 @@ describe WebServer::Resource do
     let(:conf) { conf_double(access_file_name: access_file, aliases: [], script_aliases: []) }
 
     context 'when resource is in protected directory' do
-      let(:protected_directory) { `pwd` }
-      let(:request) { request_double(uri: "#{protected_directory.trim!}/resource.html") }
+      FileUtils.rm_rf(Dir.pwd + '/doc_root')
+      #hardcoded this for now because the Construct library was giving us issues.
+      Dir.mkdir Dir.pwd + '/doc_root'
+      Dir.mkdir Dir.pwd + '/doc_root' + '/protected'
+      File.open(Dir.pwd + '/doc_root' + '/protected/.test_access_file', "w+") { |file| file.write("boo!") }
+
+
+      let(:request) { request_double(uri: '/protected/resource.html') }
 
       it 'returns true' do
-        protect_directory protected_directory do
-          expect(WebServer::Resource.new(request, conf, mimes).protected?).to be_true
-        end
+        expect(WebServer::Resource.new(request, conf, mimes).protected?).to eq true
+        FileUtils.rm_rf(Dir.pwd + '/doc_root')
       end
     end
 

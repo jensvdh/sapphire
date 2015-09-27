@@ -9,14 +9,9 @@ module WebServer
     end
 
     def protected?
-      uri = @request.uri
-      document_root = @conf.document_root
-      if File.extname(uri) == ""
-        directory = uri
-      else
-        directory = (uri.split("/").first uri.split("/").size - 1).join("/")
-      end
-      File.exist?(document_root + directory + "/" + @conf.access_file_name)
+      path = resolve
+      path = File.dirname(path)
+      File.exist?(path + "/" + @conf.access_file_name)
     end
 
     def script_aliased?
