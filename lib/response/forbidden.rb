@@ -4,10 +4,11 @@ module WebServer
     class Forbidden < Base
       def initialize(resource, options={})
         super(resource, {:code => 403})
+        @headers['Content-Type'] = 'text/plain'
+        @headers['Content-Length'] = "Forbidden access.".size
       end
 
       def get_body
-        @headers['Content-Length'] = "Forbidden access.".size
         return "Forbidden access."
       end
     end
