@@ -1,1 +1,3 @@
-.ideaw
+.idea
+# Ignore all idea
+*.idea*

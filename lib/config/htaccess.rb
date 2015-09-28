@@ -4,7 +4,6 @@ module WebServer
       return @auth_user_file
     end
 
-
     def auth_type
       return @auth_type
     end

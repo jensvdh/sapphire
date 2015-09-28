@@ -23,44 +23,52 @@ module WebServer
 
     module Factory
       def self.create(resource)
-        #check if the file exists
         path = resource.resolve
-        if !is_found(path)
+        #check for 404
+        if !File.exists?(path)
           return Response::NotFound.new(resource)
         else
-          if(!resource.protected?)
-            return Response::Success.new(resource)
+          #authenticate/authorize
+          authenticated_response = is_authenticated?(resource)
+          if(authenticated_response == true)
+            response = get_file_response(resource)
+            return response
           else
-            htaccess_path = File.dirname(path) + '/' + resource.conf.access_file_name
-            htaccess_file = File.open(htaccess_path, "rb")
-            file_content = htaccess_file.read
-            htaccess_file.close
-            access = Htaccess.new(file_content)
-            if(access.require_user == 'valid-user')
-              if resource.request.headers['AUTHORIZATION'].nil?
-                return Response::Unauthorized.new(resource, {:realm => access.auth_name})
-              else
-                #we will check the password here
-                encrypted_string = resource.request.headers['AUTHORIZATION'].split(" ").last
-                if(access.authenticated?(encrypted_string))
-                  return Response::Success.new(resource)
-                else
-                  return Response::Forbidden.new(resource)
-                end
-              end
-            else
-              return Response::Success.new(resource)
-            end
+            return authenticated_response
           end
         end
       end
 
-      def is_found(path)
-        return !File.exists?(path)
+      def self.get_file_response(resource)
+        return Success.new(resource)
       end
 
-      def has_protected_response?(resource)
-
+      def self.is_authenticated?(resource)
+        path = resource.resolve
+        #if its not protected, just early return instantly.
+        if(!resource.protected?)
+          return true
+        end
+        htaccess_path = File.dirname(path) + '/' + resource.conf.access_file_name
+        htaccess_file = File.open(htaccess_path, "rb")
+        file_content = htaccess_file.read
+        htaccess_file.close
+        access = Htaccess.new(file_content)
+        if(access.require_user == 'valid-user')
+          if resource.request.headers['AUTHORIZATION'].nil?
+            return Response::Unauthorized.new(resource, {:realm => access.auth_name})
+          else
+            #we will check the password here
+            encrypted_string = resource.request.headers['AUTHORIZATION'].split(" ").last
+            if(access.authenticated?(encrypted_string))
+              return true
+            else
+              return Response::Forbidden.new(resource)
+            end
+          end
+        else
+          return true
+        end
       end
 
       def self.error(resource, error_object)

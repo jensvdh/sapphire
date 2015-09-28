@@ -4,9 +4,11 @@ module WebServer
     class NotFound < Base
       def initialize(resource, options={})
         super(resource, {:code => 404})
+        @headers['Content-Length'] = "Page not found".size
+        @headers['Content-Type'] = 'text/plain'
       end
       def get_body
-        @headers['Content-Length'] = "Page not found".size
+
         return "Page not found"
       end
     end
