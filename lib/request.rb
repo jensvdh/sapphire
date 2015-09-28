@@ -5,13 +5,32 @@ module WebServer
     # Request creation receives a reference to the socket over which
     # the client has connected
     def initialize(socket)
+      @supported_http_verbs = Hash[
+        "PUT" => true,
+        "GET" => true,
+        "POST" => true,
+        "PATCH" => true,
+        "OPTIONS" => true,
+        "PURGE" => true,
+        "HEAD" => true,
+        "DELETE" => true,
+        "COPY" => true,
+        "LINK" => true,
+        "UNLINK" => true,
+        "LOCK" => true,
+        "UNLOCK" => true,
+        "PROPFIND" => true,
+        "VIEW" => true
+      ].freeze
       @headers = Hash.new
       @params = Hash.new
       @body = ""
       initial_line = socket.readline
       parse_initial_line(initial_line)
+      if !is_first_line_valid?
+        raise ArgumentError.new("Bad HTTP request")
+      end
       line = socket.readline
-
       while (!line.strip.empty?) do
         puts line
         parse_header_line(line)
@@ -20,6 +39,9 @@ module WebServer
 
       #check if we have a content length header
       if !@headers["CONTENT_LENGTH"].nil?
+        if @headers["CONTENT_LENGTH"].to_i == 0
+          return
+        end
         content_length = 0
         line = socket.readline
         content_length = content_length + line.length
@@ -46,7 +68,9 @@ module WebServer
       key.gsub!('-','_')
       @headers[key] = value
     end
-    def get_content_from_buffer(socket)
+
+    def is_first_line_valid?
+      return ((@version == "HTTP/1.1" || @version == "HTTP/1.0") && @uri =~ /^["\/"]/ && @supported_http_verbs[@http_method] == true)
     end
 
     def parse_initial_line(line)

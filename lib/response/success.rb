@@ -17,6 +17,9 @@ module WebServer
       end
 
       def get_body
+        if(@resource.request.http_method == "HEAD")
+          return ""
+        end
         return @file.read
       end
     end

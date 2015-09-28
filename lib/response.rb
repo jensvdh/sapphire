@@ -23,23 +23,32 @@ module WebServer
 
     module Factory
       def self.create(resource)
-        path = resource.resolve
-        #check for 404
-        if !File.exists?(path)
-          return Response::NotFound.new(resource)
-        else
-          #authenticate/authorize
-          authenticated_response = is_authenticated?(resource)
-          if(authenticated_response == true)
-            response = get_file_response(resource)
-            return response
+        begin
+          path = resource.resolve
+          #check for 404
+          if !File.exists?(path)
+            return Response::NotFound.new(resource)
           else
-            return authenticated_response
+            #authenticate/authorize
+            authenticated_response = is_authenticated?(resource)
+            if(authenticated_response == true)
+              response = get_file_response(resource)
+              return response
+            else
+              return authenticated_response
+            end
           end
+        rescue Exception => ex
+          error_response = self.error(resource, ex)
+          return error_response
         end
       end
 
       def self.get_file_response(resource)
+        #if we are dealing with a PUT, return 201
+        if(resource.request.http_method == 'PUT')
+          return SuccessfullyCreated.new(resource)
+        end
         #check for 304
         if(!resource.request.headers["IF_MODIFIED_SINCE"].nil?)
           path = resource.resolve
@@ -77,9 +86,12 @@ module WebServer
           return true
         end
       end
+      def self.bad_request(error_object)
+        Response::BadRequest.new(nil, {})
+      end
 
       def self.error(resource, error_object)
-        #Response::ServerError.new(resource, exception: error_object)
+        Response::ServerError.new(resource, {:exception => error_object})
       end
     end
   end

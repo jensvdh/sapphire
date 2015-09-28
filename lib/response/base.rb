@@ -12,7 +12,9 @@ module WebServer
         #TODO respond with same version
         @version = DEFAULT_HTTP_VERSION
         @headers = DEFAULT_HEADERS
-        @resource = resource
+        if(!resource.nil?)
+          @resource = resource
+        end
       end
 
       def create_status_line

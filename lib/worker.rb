@@ -15,10 +15,19 @@ module WebServer
     # Processes the request
     def process_request
       puts "New Request received"
-      req = Request.new(@socket)
-      resource = Resource.new(req, @server.conf, @server.mimes)
-      response = Response::Factory::create(resource)
-      @socket.write(response.to_s)
+      bad_request = false
+      begin
+        req = Request.new(@socket)
+      rescue Exception => ex
+        bad_request = true
+        response = Response::Factory::bad_request(ex)
+        @socket.write(response.to_s)
+      end
+      if(bad_request == false)
+        resource = Resource.new(req, @server.conf, @server.mimes)
+        response = Response::Factory::create(resource)
+        @socket.write(response.to_s)
+      end
     end
 
   end
