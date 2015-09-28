@@ -13,6 +13,7 @@ module WebServer
         extension = File.extname(@resource.resolve).split(".").last
         @headers['Content-Type'] = "#{@resource.mimes.for_extension(extension)}"
         @headers['Content-Length'] = @file.size
+        @headers['Last-Modified'] = @file.mtime
       end
 
       def get_body
