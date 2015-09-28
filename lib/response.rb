@@ -25,7 +25,7 @@ module WebServer
       def self.create(resource)
         #check if the file exists
         path = resource.resolve
-        if !File.exists?(path)
+        if !is_found(path)
           return Response::NotFound.new(resource)
         else
           if(!resource.protected?)
@@ -53,6 +53,14 @@ module WebServer
             end
           end
         end
+      end
+
+      def is_found(path)
+        return !File.exists?(path)
+      end
+
+      def has_protected_response?(resource)
+
       end
 
       def self.error(resource, error_object)
