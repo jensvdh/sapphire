@@ -39,7 +39,7 @@ module WebServer
     end
 
     def parse_header_line(line)
-      key, value = line.split(":")
+      key, value = line.split(": ")
       key.strip!
       value.strip!
       key.upcase!

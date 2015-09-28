@@ -40,6 +40,13 @@ module WebServer
       end
 
       def self.get_file_response(resource)
+        #check for 304
+        if(!resource.request.headers["IF_MODIFIED_SINCE"].nil?)
+          path = resource.resolve
+          if(File.mtime(path).to_s == resource.request.headers["IF_MODIFIED_SINCE"])
+            return NotModified.new(resource)
+          end
+        end
         return Success.new(resource)
       end
 
