@@ -1,0 +1,1 @@
+Hello from alias! You can access me as /ab/alias.txt as well! ;)

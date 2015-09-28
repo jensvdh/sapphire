@@ -11,7 +11,7 @@ Listen 1234
 LogFile "log_file"
 ScriptAlias /script_alias/ "script/alias/directory"
 ScriptAlias /script_alias_2/ "script/alias/directory"
-Alias /ab/ "alias/public_html/ab1/ab2/"
+Alias /ab/ "alias/public_html/ab2/ab2/"
 Alias /~traciely/ "server/public_html/"
 DirectoryIndex i.html
 AccessFileName access_file
@@ -87,7 +87,7 @@ AccessFileName access_file
 
   describe '#alias_path' do
     it 'returns the aliased path' do
-      expect(httpd_file.alias_path('/ab/')).to eq 'alias/public_html/ab1/ab2/'
+      expect(httpd_file.alias_path('/ab/')).to eq 'alias/public_html/ab2/ab2/'
     end
 
     it 'returns nil when aliased path does not exist' do

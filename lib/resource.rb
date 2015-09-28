@@ -44,6 +44,9 @@ module WebServer
 
       #check for script aliases
       @conf.script_aliases.each do |a|
+        if !directory.end_with? '/'
+          directory = directory + '/'
+        end
         if directory.include? a
           document_root = ""
           @script_aliased = true
@@ -52,6 +55,9 @@ module WebServer
       end
 
       @conf.aliases.each do |a|
+        if !directory.end_with? '/'
+          directory = directory + '/'
+        end
         if directory.include? a
           document_root = ""
           directory =  directory.gsub(a, @conf.alias_path(a))

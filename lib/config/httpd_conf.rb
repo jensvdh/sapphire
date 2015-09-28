@@ -26,12 +26,12 @@ module WebServer
           when "AccessFileName"
             @access_file_name = value
           when "ScriptAlias"
-            key, value = value.split(' ')
+            key, value = value.split(' "')
             value.strip!
             value.gsub!(/^\"|\"?$/, '')
             @script_aliases[key] = value
           when "Alias"
-            key, value = value.split(' ')
+            key, value = value.split(' "')
             value.strip!
             value.gsub!(/^\"|\"?$/, '')
             @aliases[key] = value
