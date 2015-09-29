@@ -63,7 +63,7 @@ module WebServer
         begin
           line = io.readline
           while (!line.strip.empty?) do
-            @message = @message + line + "\n"
+            @message = @message + line
             line = io.readline
           end
         rescue

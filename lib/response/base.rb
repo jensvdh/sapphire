@@ -21,7 +21,7 @@ module WebServer
       end
 
       def to_s
-        str = ""
+        str = ''
         str = create_status_line + "\r\n"
         @headers.each do |key, value|
           str = str + key.to_s + ": " + value.to_s + "\r\n"
