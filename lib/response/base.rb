@@ -11,7 +11,6 @@ module WebServer
         @code = options[:code].to_s + " "  + RESPONSE_CODES[options[:code]]
         #TODO respond with same version
         @version = DEFAULT_HTTP_VERSION
-        @headers = DEFAULT_HEADERS
         if(!resource.nil?)
           @resource = resource
         end
@@ -31,11 +30,7 @@ module WebServer
       end
 
       def get_body
-        return ""
-      end
-
-      def content_length
-        @content_length
+        return ''
       end
     end
   end

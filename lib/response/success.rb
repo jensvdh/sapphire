@@ -5,14 +5,23 @@ module WebServer
     class Success < Base
       def initialize(resource, options={})
         @resource = resource
-        super(resource, {:code => 200})
+        @headers = Hash.new()
         path = @resource.resolve
         if !resource.script_aliased?
-          @file = File.open(path,"rb")
-          create_headers
+          file = File.open(path,"rb")
+          @message = file.read
+          extension = File.extname(@resource.resolve).split(".").last
+          @headers['Content-Type'] = @resource.mimes.for_extension(extension)
+          @headers['Last-Modified'] = file.mtime.to_s
+          file.close
         else
           handle_cgi
         end
+        @headers['Content-Length'] = @message.bytesize
+        if(@headers['Content-Type'].nil?)
+          @headers['Content-Type'] = 'text/plain'
+        end
+        super(resource, {:code => 200})
       end
 
       def handle_cgi
@@ -21,17 +30,43 @@ module WebServer
           params = @resource.request.params.values.join(" ")
         end
 
-
         IO.popen(command + " " + Shellwords.escape(@resource.resolve)+" " + params) do |io|
           #write the request body into CGI
           io.write @resource.request.body
+          parse_script_output(io)
+        end
+      end
 
-          #return the output from the CGI
-          result = io.read
+      def parse_header_line(line)
+        key, value = line.split(": ")
+        key.strip!
+        value.strip!
+        @headers[key] = value
+      end
 
-          @message = result
-          @headers['Content-Length'] = result.bytesize
-          @headers['Content-Type'] = 'text/plain'
+      def parse_script_output(io)
+        #skip the first line
+        line = io.readline
+
+        #empty output is possible
+        if line.nil?
+          return
+        end
+
+        while (!line.strip.empty? && (line.split(": ").length > 1)) do
+          puts line
+          parse_header_line(line)
+          line = io.readline
+        end
+
+        @message = ""
+        begin
+          line = io.readline
+          while (!line.strip.empty?) do
+            @message = @message + line + "\n"
+            line = io.readline
+          end
+        rescue
         end
       end
 
@@ -43,19 +78,10 @@ module WebServer
         return first_line[2..-1]
       end
 
-      def create_headers
-        extension = File.extname(@resource.resolve).split(".").last
-        @headers['Content-Type'] = "#{@resource.mimes.for_extension(extension)}"
-        @headers['Content-Length'] = @file.size
-        @headers['Last-Modified'] = @file.mtime.to_s
-      end
 
       def get_body
         if(@resource.request.http_method == "HEAD")
           return ""
-        end
-        if(!@resource.script_aliased?)
-          return @file.read
         else
           return @message
         end
