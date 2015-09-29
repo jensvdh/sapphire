@@ -49,8 +49,8 @@ module WebServer
         if(resource.request.http_method == 'PUT')
           return SuccessfullyCreated.new(resource)
         end
-        #check for 304
-        if(!resource.request.headers["IF_MODIFIED_SINCE"].nil?)
+        #check for 304, but only if we get the correct header and we are not dealing with a script.
+        if(!resource.request.headers["IF_MODIFIED_SINCE"].nil? && !resource.script_aliased?)
           path = resource.resolve
           if(File.mtime(path).to_s == resource.request.headers["IF_MODIFIED_SINCE"])
             return NotModified.new(resource)

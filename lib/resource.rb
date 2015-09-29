@@ -24,6 +24,9 @@ module WebServer
 
       #check for script aliases
       @conf.script_aliases.each do |a|
+        if !directory.end_with? '/'
+          directory = directory + '/'
+        end
         if directory.include? a
           return true
         end
@@ -34,7 +37,7 @@ module WebServer
     def resolve
       uri = @request.uri
       document_root = @conf.document_root
-      if (File.extname(uri) == "")
+      if (File.extname(uri) == "" && !script_aliased?)
         filename = @conf.directory_index
         directory = uri
       else
