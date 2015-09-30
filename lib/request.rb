@@ -1,7 +1,8 @@
+require "base64"
 # The Request class encapsulates the parsing of an HTTP Request
 module WebServer
   class Request
-    attr_accessor :headers, :params, :uri, :body, :version, :http_method
+    attr_accessor :headers, :params, :uri, :body, :version, :http_method, :initial_line
     # Request creation receives a reference to the socket over which
     # the client has connected
     def initialize(socket)
@@ -25,14 +26,13 @@ module WebServer
       @headers = Hash.new
       @params = Hash.new
       @body = ""
-      initial_line = socket.readline
-      parse_initial_line(initial_line)
+      @initial_line = socket.readline
+      parse_initial_line(@initial_line)
       if !is_first_line_valid?
         raise ArgumentError.new("Bad HTTP request")
       end
       line = socket.readline
       while (!line.strip.empty?) do
-        puts line
         parse_header_line(line)
         line = socket.readline
       end
@@ -53,6 +53,16 @@ module WebServer
         parse_body_line(line)
         @body.strip!
         puts @headers
+      end
+    end
+
+    def get_remote_user
+      if headers['AUTHORIZATION'].nil?
+        return "-"
+      else
+        encoded_string = headers['AUTHORIZATION']
+        decoded_string = Base64.decode64(encoded_string.split(" ")[1])
+        return decoded_string.split(":")[0]
       end
     end
 
@@ -90,16 +100,6 @@ module WebServer
         @params[key] = value
       end
       return params
-    end
-
-    # I've added this as a convenience method, see TODO (This is called from the logger
-    # to obtain information during server logging)
-    def user_id
-      # TODO: This is the userid of the person requesting the document as determined by
-      # HTTP authentication. The same value is typically provided to CGI scripts in the
-      # REMOTE_USER environment variable. If the status code for the request (see below)
-      # is 401, then this value should not be trusted because the user is not yet authenticated.
-      '-'
     end
   end
 end

@@ -6,8 +6,7 @@ end
 
 module WebServer
   class Server
-    attr_accessor :conf, :mimes
-    DEFAULT_PORT = 2468
+    attr_accessor :conf, :mimes, :logger
 
     #constructor
     def initialize(options={})
@@ -19,30 +18,24 @@ module WebServer
       mime_content = mime_types_file.read
       @mimes = MimeTypes.new(mime_content)
       mime_types_file.close
-      if @conf.port.nil?
-        @conf.port = @DEFAULT_PORT
-      end
       # Set up WebServer's configuration files and logger here
-      # Do any preparation necessary to allow threading multiple requests
+      @logger = Logger.new(@conf.log_file)
     end
 
     def start
       puts "Starting webserver on port #{@conf.port}"
-      "waiting for connections.."
       server = TCPServer.open(@conf.port)
+      puts "Server is now accepting connections..."
       loop do
         Thread.fork(server.accept) do |client|
           worker = Worker.new(client, self)
           worker.process_request
-          puts "request handled"
           client.close
         end
       end
-      # Begin your 'infinite' loop, reading from the TCPServer, and
-      # processing the requests as connections are made
     end
-    private
   end
 end
 
 WebServer::Server.new.start
+

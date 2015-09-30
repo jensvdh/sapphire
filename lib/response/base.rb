@@ -16,6 +16,14 @@ module WebServer
         end
       end
 
+      def get_content_length
+        if @content_length.nil? == true || @content_length == 0
+          return "-"
+        else
+          return @content_length
+        end
+      end
+
       def create_status_line
         return @version + " " + @code
       end
@@ -26,7 +34,9 @@ module WebServer
         @headers.each do |key, value|
           str = str + key.to_s + ": " + value.to_s + "\r\n"
         end
-        str = str + "\r\n" + get_body
+        @body = get_body
+        @content_length = @body.bytesize
+        str = str + "\r\n" + @body
       end
 
       def get_body

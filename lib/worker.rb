@@ -10,16 +10,17 @@ module WebServer
     def initialize(client_socket, server)
       @socket = client_socket
       @server = server
+      @client_ip = client_socket.peeraddr[3].to_s
     end
 
     # Processes the request
     def process_request
-      puts "New Request received"
       bad_request = false
       begin
         req = Request.new(@socket)
       rescue Exception => ex
         bad_request = true
+        req = nil
         response = Response::Factory::bad_request(ex)
         @socket.write(response.to_s)
       end
@@ -28,6 +29,7 @@ module WebServer
         response = Response::Factory::create(resource)
         @socket.write(response.to_s)
       end
+      @server.logger.log(req, response, @client_ip)
     end
 
   end

@@ -1,8 +1,6 @@
-require_relative "configuration"
-
 # Parses, stores and exposes the values from the mime.types file
 module WebServer
-  class MimeTypes < Configuration
+  class MimeTypes
     def initialize(mime_file_content)
       @mimetype = Hash.new
       mimecontent = mime_file_content.split("\n")

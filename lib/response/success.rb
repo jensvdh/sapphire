@@ -54,7 +54,6 @@ module WebServer
         end
 
         while (!line.strip.empty? && (line.split(": ").length > 1)) do
-          puts line
           parse_header_line(line)
           line = io.readline
         end

@@ -1,8 +1,6 @@
-require_relative 'configuration'
-
 # Parses, stores, and exposes the values from the httpd.conf file
 module WebServer
-  class HttpdConf < Configuration
+  class HttpdConf
     def initialize(content)
       content = content.split("\n")
       content.delete_if{|m| m.length == 0 || m =~ /^#/}
@@ -35,6 +33,22 @@ module WebServer
             value.strip!
             value.gsub!(/^\"|\"?$/, '')
             @aliases[key] = value
+        end
+        #create some sensible defaults
+        if @directory_index.nil?
+          @directory_index = "index.html"
+        end
+
+        if @port.nil?
+          @port = 2468
+        end
+
+        if @access_file_name.nil?
+          @access_file_name = ".htaccess"
+        end
+
+        if @log_file.nil?
+          @log_file = @server_root + "/logs/log.txt"
         end
       end
     end
