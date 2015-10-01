@@ -10,10 +10,14 @@ module WebServer
 
     def authenticated?(encrypted_string)
       if authorized?(encrypted_string)
-        file = File.open(@auth_user_file, "rb")
-        contents = file.read
-        htpasswd = Htpasswd.new(contents)
-        return htpasswd.is_authenticated?(encrypted_string)
+        if File.exists? @auth_user_file
+          file = File.open(@auth_user_file, "rb")
+          contents = file.read
+          htpasswd = Htpasswd.new(contents)
+          return htpasswd.is_authenticated?(encrypted_string)
+        else
+          raise "Could not find Htpasswd file at #{@auth_user_file}"
+        end
       end
       return false
     end
