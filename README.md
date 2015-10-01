@@ -21,7 +21,7 @@ To run the entire test suite:
 rspec
 ```
 
-To run the web server (nothing will happen until you implement...):
+To run the web server.
 ```
 ruby web_server.rb
 ```
@@ -77,7 +77,7 @@ We were running into a lot of issues with the “Construct” library, that crea
 
 We also ended up making some changes in image_test.js. We believe the original implementation was not correctly showing us the multi-threaded implementation. Because our local server was so fast the 7MB PNG would come in really quickly. Because the 7MB PNG was on the DOM it would end up blocking the render thread of the browser, because rendering a massive PNG like that takes at least a full second, even on a fast machine. We ended up just loading the image in memory and just outputted a line of text when it finished loading.
 
-Tools we used for testing and development
+### Tools we used for testing and development
 We extensively used the Chrome Developer Tools (especially the network request tools). Because they allow us to see the exact requests and headers the browser sends.
 
 These developer tools also allowed us to get a sense of the timing of the network requests. We feel like the Chrome Developer Tools saved us a lot of time.
