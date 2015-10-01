@@ -10,7 +10,7 @@ module WebServer
 
     #constructor
     def initialize(options={})
-      config_file = File.open("config/sample.conf", "rb")
+      config_file = File.open("config/httpd.conf", "rb")
       contents = config_file.read
       config_file.close
       @conf = HttpdConf.new(contents)
