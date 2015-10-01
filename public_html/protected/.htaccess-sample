@@ -1,0 +1,4 @@
+AuthUserFile "/Users/Jens/Google Drive/SFSU/867/webserver/config/.htpasswd-sample"
+AuthType Basic
+AuthName "I Challenge You"
+Require valid-user

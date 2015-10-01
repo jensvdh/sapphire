@@ -1,3 +1,4 @@
 .idea
 # Ignore all idea
 *.idea*
+logs
