@@ -1,5 +1,7 @@
 # Sapphire Simple HTTP webserver
 
+![Sapphire Logo](http://i.imgur.com/RWxJ2sI.png)
+
 ## Webserver Setup
 
 It is recommended to use paths in all the config files!
